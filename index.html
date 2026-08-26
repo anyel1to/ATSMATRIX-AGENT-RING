@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ATSMATRIX // AGENT RING</title>
+  <meta name="description" content="One task walks in, seven workers take it apart, one answer walks out. Live operations floor for a core-and-ring multi-agent system." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="kicker">
+      <span>ONE BOT · SEVEN HANDS · A CORE THAT DECIDES · EVERY HOP ON THE RECORD</span>
+      <span>ATSMATRIX · LIVE FLOOR</span>
+    </div>
+    <h1 class="title">Agent Ring — <em>one task walks in, seven workers take it apart, one answer walks out</em></h1>
+    <p class="lede">
+      A bot is not one prompt with a bigger window. A brief gets cut into steps, and each step is closed by the worker that can actually close it.
+      The cheapest worker that can finish the step is the right worker. <strong>Routing is the product.</strong>
+    </p>
+    <div class="principles">
+      <div class="pill"><b>+</b> seven workers around one core</div>
+      <div class="pill"><b>+</b> handoffs carry state, not transcripts</div>
+      <div class="pill"><b>+</b> every claim gets a second reader</div>
+    </div>
+    <div class="phases">
+      <div class="phase-dot on" data-phase="0">1</div>
+      <div class="phase-dot" data-phase="1">2</div>
+      <div class="phase-dot" data-phase="2">3</div>
+      <div class="phase-dot" data-phase="3">4</div>
+      <div class="phase-dot" data-phase="4">5</div>
+      <div class="phase-dot" data-phase="5">6</div>
+      <div class="phase-note" id="phaseNote">the core reads the brief before a single tool fires</div>
+    </div>
+
+    <section class="grid-top">
+      <article class="card">
+        <div class="subhead">
+          <span>The ring · seven workers around one core · live trace</span>
+        </div>
+        <h3>The core decides who moves — the ring does the work</h3>
+        <div class="subhead">
+          <span>the core is the only thing holding the task state</span>
+          <span>seven specialists, running at the same time</span>
+          <span>a handoff is a message, not a re-read</span>
+        </div>
+        <div class="ring-wrap"><canvas id="ring"></canvas></div>
+        <p class="ring-foot">nothing runs until the core has named a worker · the scratchpad hands over state without a copy</p>
+      </article>
+
+      <article class="card">
+        <div class="badge" id="phaseBadge">INTAKE</div>
+        <div class="subhead" id="phaseTitle">PHASE 1/6 · INTAKE</div>
+        <div class="legend" id="legend"></div>
+        <div class="metrics">
+          <div class="metric"><small>STEPS CLOSED</small><b class="g" id="mSteps">1,280</b></div>
+          <div class="metric"><small>HANDOFFS</small><b class="c" id="mHops">360</b></div>
+          <div class="metric"><small>WORKERS</small><b>7</b></div>
+          <div class="metric"><small>TOOL CALLS</small><b class="a" id="mTools">8,940</b></div>
+          <div class="metric"><small>SECOND-READ</small><b class="g">96.2%</b></div>
+          <div class="metric"><small>MEDIAN HOP</small><b id="mHop">340ms</b></div>
+        </div>
+        <div class="subhead">RING BUS · EVERY MESSAGE THAT ACTUALLY MOVED</div>
+        <div class="bus" id="bus"></div>
+      </article>
+    </section>
+
+    <section class="grid-panels">
+      <article class="card">
+        <div class="panel-head">
+          <h3>Panel 01 · Load across the ring</h3>
+          <span class="live">LIVE BALANCE</span>
+        </div>
+        <p class="lede" style="margin:0 0 8px">No single worker is carrying the run on its own</p>
+        <div id="loadRows"></div>
+        <p class="note">a ring that leans on one worker is just a single agent with extra hops</p>
+      </article>
+
+      <article class="card">
+        <div class="panel-head">
+          <h3>Panel 02 · Tokens spent per hop</h3>
+          <span class="live">ONE RUN</span>
+        </div>
+        <p class="lede" style="margin:0 0 4px">The tool call costs more than every hop around it combined</p>
+        <div class="token-total" id="tokenTotal">11.4k</div>
+        <div class="token-chart" id="tokenChart"></div>
+        <p class="note">handing over state instead of transcripts is where the budget survives</p>
+      </article>
+
+      <article class="card">
+        <div class="panel-head">
+          <h3>Panel 03 · Handoff latency</h3>
+          <span class="live">p50 vs p95</span>
+        </div>
+        <p class="lede" style="margin:0 0 8px">Most handoffs land under a second — the tail is always the tool</p>
+        <div class="hist" id="hist"></div>
+        <div class="axis"><span>0.1s</span><span>p50 420ms</span><span>p95 tool</span><span>2.5s+</span></div>
+        <p class="note">the tail is what a user feels, the median is what a dashboard shows</p>
+      </article>
+
+      <article class="card">
+        <div class="panel-head">
+          <h3>Panel 04 · Where runs actually break</h3>
+          <span class="warn">WORKER × CAUSE</span>
+        </div>
+        <p class="lede" style="margin:0 0 8px">Runs fail on their inputs, not on worker capability</p>
+        <div class="heat" id="heat"></div>
+        <p class="note">one bad tool schema shows up as five different-looking failures</p>
+      </article>
+
+      <article class="card">
+        <div class="panel-head">
+          <h3>Panel 05 · Throughput</h3>
+          <span class="live">LAST 40s</span>
+        </div>
+        <p class="lede" style="margin:0 0 4px">Steps close faster than they arrive, so the queue drains</p>
+        <div class="spark-val"><span id="tps">6.2</span><small>STEPS / S</small></div>
+        <canvas class="spark" id="spark"></canvas>
+        <p class="note">when one band swells, that worker has quietly become the bottleneck</p>
+      </article>
+
+      <article class="card">
+        <div class="panel-head">
+          <h3>The catch · What the ring needs from you</h3>
+          <span class="warn">READ THIS ONE</span>
+        </div>
+        <p class="lede" style="margin:0 0 8px">No worker can finish a step you never actually specified</p>
+        <div class="cov" id="cov"></div>
+        <p class="note">most swarm failures are missing arguments, not missing intelligence</p>
+      </article>
+    </section>
+
+    <div class="footer">
+      <div>route: <span>by the step, not by the model</span> · run: <span>in parallel wherever it is safe</span> · ship: <span>only what a second worker read</span></div>
+      <div>ATSMATRIX · AGENT RING · PUBLIC</div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
